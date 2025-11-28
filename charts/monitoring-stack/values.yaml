@@ -1,0 +1,98 @@
+# Values for monitoring-stack chart
+
+# OpenTelemetry Collector configuration
+opentelemetry:
+  enabled: true
+
+opentelemetry-collector:
+  mode: deployment
+  replicaCount: 2
+  config:
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+            endpoint: 0.0.0.0:4318
+    processors:
+      batch: {}
+    exporters:
+      prometheus:
+        endpoint: "0.0.0.0:8889"
+      logging:
+        loglevel: debug
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: [batch]
+          exporters: [logging]
+        metrics:
+          receivers: [otlp]
+          processors: [batch]
+          exporters: [prometheus, logging]
+
+# Prometheus configuration
+prometheus:
+  enabled: true
+
+  server:
+    retention: "30d"
+    persistentVolume:
+      enabled: true
+      size: 50Gi
+
+  alertmanager:
+    enabled: true
+    persistentVolume:
+      enabled: true
+      size: 5Gi
+
+# Grafana configuration
+grafana:
+  enabled: true
+
+  adminPassword: changeme
+
+  persistence:
+    enabled: true
+    size: 10Gi
+
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          type: prometheus
+          url: http://{{ .Release.Name }}-prometheus-server
+          access: proxy
+          isDefault: true
+
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: 'default'
+          orgId: 1
+          folder: ''
+          type: file
+          options:
+            path: /var/lib/grafana/dashboards/default
+
+# Loki configuration
+loki:
+  enabled: true
+
+  loki:
+    auth_enabled: false
+    commonConfig:
+      replication_factor: 1
+    storage:
+      type: 'filesystem'
+
+  singleBinary:
+    replicas: 1
+    persistence:
+      enabled: true
+      size: 30Gi

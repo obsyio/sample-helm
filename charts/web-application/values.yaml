@@ -1,0 +1,56 @@
+# Default values for web-application chart
+# This is a YAML-formatted file.
+
+# Application configuration
+app:
+  name: web-app
+  replicas: 3
+  image:
+    repository: mycompany/web-app
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
+
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 8080
+
+  env:
+    - name: DATABASE_HOST
+      value: "{{ .Release.Name }}-postgresql"
+    - name: REDIS_HOST
+      value: "{{ .Release.Name }}-redis-master"
+
+# PostgreSQL dependency configuration
+postgresql:
+  enabled: true
+  auth:
+    username: webapp
+    password: changeme
+    database: webapp_db
+  primary:
+    persistence:
+      enabled: true
+      size: 10Gi
+
+# Redis dependency configuration
+redis:
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: true
+    password: changeme
+  master:
+    persistence:
+      enabled: true
+      size: 8Gi
+
+# NGINX Ingress configuration
+ingress:
+  enabled: true
+
+nginx-ingress:
+  controller:
+    replicaCount: 2
+    service:
+      type: LoadBalancer

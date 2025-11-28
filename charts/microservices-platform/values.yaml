@@ -1,0 +1,46 @@
+# Values for microservices-platform
+
+# PostgreSQL
+postgresql:
+  enabled: true
+  auth:
+    username: platform
+    password: changeme
+    database: platform_db
+
+# MongoDB
+mongodb:
+  enabled: true
+  auth:
+    enabled: true
+    rootPassword: changeme
+  architecture: replicaset
+  replicaCount: 3
+
+# Redis
+redis:
+  enabled: true
+  architecture: replication
+  auth:
+    enabled: true
+    password: changeme
+
+# RabbitMQ
+rabbitmq:
+  enabled: true
+  auth:
+    username: platform
+    password: changeme
+  replicaCount: 3
+
+# Kafka
+kafka:
+  enabled: true
+  replicaCount: 3
+  zookeeper:
+    enabled: true
+    replicaCount: 3
+
+# Istio
+istio:
+  enabled: false  # Disabled by default, enable for service mesh

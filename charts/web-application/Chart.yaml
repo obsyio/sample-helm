@@ -1,0 +1,53 @@
+apiVersion: v2
+name: web-application
+description: A sample web application with database and caching
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+
+# Dependencies on upstream charts
+# This is what CloudWave will monitor for updates
+dependencies:
+  # Database: PostgreSQL from Bitnami
+  - name: postgresql
+    version: 12.1.5
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled
+    tags:
+      - database
+
+  # Cache: Redis from Bitnami
+  - name: redis
+    version: 17.3.7
+    repository: https://charts.bitnami.com/bitnami
+    condition: redis.enabled
+    tags:
+      - cache
+
+  # Ingress: NGINX Ingress Controller
+  - name: ingress-nginx
+    version: 4.7.1
+    repository: https://kubernetes.github.io/ingress-nginx
+    condition: ingress.enabled
+    alias: nginx-ingress
+
+maintainers:
+  - name: CloudWave Team
+    email: team@obsy.io
+
+keywords:
+  - web
+  - application
+  - postgresql
+  - redis
+  - nginx
+
+# Annotations for CloudWave update policies
+annotations:
+  # Global update policy for this chart
+  relnx.io/update-policy: "latest-1"
+
+  # Per-dependency policies (override global)
+  relnx.io/postgresql-policy: "latest-1"      # Stay 1 version behind
+  relnx.io/redis-policy: "minor-only"         # Only minor updates
+  relnx.io/ingress-nginx-policy: "patch-only" # Only patch updates
